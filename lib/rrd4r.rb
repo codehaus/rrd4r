@@ -168,9 +168,6 @@ module Rrd4r
 
     end
 
-    def self.create2(rrd_path,options={},&block)
-    end
-
     def self.create(rrd_path, options={}, &block)
       builder = Builder.new( &block )
       data_sources = ( options[:data_sources] || [] ) + builder.data_sources
@@ -201,11 +198,7 @@ module Rrd4r
     end
 
     def self.open(rrd_path)
-      rrd = Rrd.new( rrd_path )
-      if block_given?
-        yield( rrd )
-      end
-      rrd
+      Rrd.new( rrd_path )
     end
 
     def initialize(rrd_path)
@@ -216,6 +209,10 @@ module Rrd4r
       @rra_ordered = []
       connect_to_rrdtool()
       load_rrd_info()
+    end
+
+    def close()
+      @rrd.close and @rrd = nil if @rrd
     end
 
     def [](name)
