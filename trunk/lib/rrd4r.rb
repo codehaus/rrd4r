@@ -25,8 +25,8 @@ module Rrd4r
       def update_at(timestamp, value)
         @rrd.update_at( timestamp, value )
       end
-      def graph_def(cf, options={})
-        Rrd4r::Graph::Def.new( self, cf, options )
+      def graph_def(vname, cf, options={})
+        Rrd4r::Graph::Def.new( vname, self, cf, options )
       end
     end
 
@@ -292,7 +292,8 @@ module Rrd4r
 
   class Graph
     class Def
-      def initialize(data_source, cf, options={})
+      def initialize(vname, data_source, cf, options={})
+        @vname = vname
         @data_source = data_source
         @cf          = cf.to_s.upcase.to_sym
         @step   = options[:step]
@@ -300,16 +301,26 @@ module Rrd4r
         @end    = options[:end]
         @reduce = options[:reduce]
       end
+      def to_s
+        s = "DEF:#{@vname}=#{@data_source.rrd.rrd_path}:#{@data_source.name}:#{@cf}"
+        s += ":step=#{@step}"     if ( @step )
+        s += ":start=#{@start}"   if ( @start )
+        s += ":end=#{@end}"       if ( @end )
+        s += ":reduce=#{@reduce}" if ( @reduce )
+        s
+      end
     end
 
     class Vdef
-      def initialize(rpn_expression)
+      def initialize(vname,rpn_expression)
+        @vname = vname
         @rpn_expression = rpn_expression
       end
     end
 
     class Cdef
-      def initialize(rpn_expression)
+      def initialize(vname,rpn_expression)
+        @vname = vname
         @rpn_expression = rpn_expression
       end
     end
@@ -318,6 +329,20 @@ module Rrd4r
     end
 
     class Line
+      def initialize(value,options={})
+        @value  = value
+        @width  = options[:width] || '' 
+        @color  = options[:color]
+        @legend = options[:legend]
+        @stack  = options[:stack]
+      end
+      def to_s
+        s = "LINE#{@width}:#{@value}"
+        s += "#{@color}"    if ( @color )
+        s += ":'#{@legend}'" if ( @legend )
+        s += ':STACK'        if ( @stack )
+        s
+      end
     end
 
     class Area
@@ -334,6 +359,30 @@ module Rrd4r
       @vdefs  = options[:vdefs] 
       @cdefs  = options[:cdefs] 
       @graphs = options[:graphs]
+    end
+
+    def to_png(options={})
+      to_image( :png, options )
+    end
+
+    def to_image(type,options={})
+      outfile = options[:outfile] || '-'
+      args = [ "--imgformat #{type.to_s.upcase}" ]
+      args << "--title '#{@title}'" if @title
+      for d in @defs
+        args << d.to_s
+      end
+      for g in @graphs
+        args << g.to_s
+      end
+
+      command_line = "#{Rrd4r::RRDTOOL_BIN} graph #{outfile} #{args.flatten.join(' ')}"
+      puts "DEBUG: Rrd4r: exec: #{command_line}" if Rrd4r::DEBUG
+      image_data = nil
+      open( '| ' + command_line ) do |io|
+        io.read( nil, image_data ) if ! options[:outfile]
+      end    
+      image_data
     end
   end
 

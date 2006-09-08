@@ -20,10 +20,15 @@ class RrdToolTest < Test::Unit::TestCase
     rrd.update( :gb_used=>10 )
     puts "last: #{rrd.last}"
 
-    graph = Rrd4r::Graph.create( :defs=>{ 
-                                   :average => rrd[ :gb_used ].graph_def( :average ) 
-                                 } )
+    graph = Rrd4r::Graph.create( :title=>'Yeah, buddy',
+                                 :defs=>[ 
+                                   rrd[ :gb_used ].graph_def( :gb_used, :average ) 
+                                 ],
+                                 :graphs=>[
+                                   Rrd4r::Graph::Line.new( :gb_used, :width=>2, :color=>'#000099', :legend=>"GB Used" )
+                                 ] )
     pp graph
+    graph.to_png :outfile=>'/tmp/bob.png'
   end
 
 end
