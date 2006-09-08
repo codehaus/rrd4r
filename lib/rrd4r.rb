@@ -160,7 +160,7 @@ module Rrd4r
       load_rrd_info()
     end
 
-    def data_source(name)
+    def [](name)
       @ds_by_name[name.to_sym]
     end
 
@@ -303,15 +303,13 @@ module Rrd4r
     end
 
     class Vdef
-      def initialize(vname, rpn_expression)
-        @vname          = vname
+      def initialize(rpn_expression)
         @rpn_expression = rpn_expression
       end
     end
 
     class Cdef
-      def initialize(vname, rpn_expression)
-        @vname          = vname
+      def initialize(rpn_expression)
         @rpn_expression = rpn_expression
       end
     end
