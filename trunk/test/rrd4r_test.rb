@@ -19,8 +19,8 @@ class RrdToolTest < Test::Unit::TestCase
 
     rrd = Rrd4r::Rrd.create( "/tmp/rrd4r-test-#{Process.pid}",
                              :step=>22 ) do |builder|
-                               builder.gauge( :gb_used, :heartbeat=>63 )
-                               builder.average( :steps=>10, :rows=>20 )
+                               builder.gauge :gb_used, :heartbeat=>63 
+                               builder.average :steps=>10, :rows=>20 
                              end 
     pp rrd
 

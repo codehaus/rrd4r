@@ -138,8 +138,32 @@ module Rrd4r
         @data_sources << Counter.new( name, options )
       end
 
+      def derive(name,options)
+        @data_sources << Derive.new( name, options )
+      end
+
+      def absolute(name,options)
+        @data_sources << Absolute.new( name, options )
+      end
+
+      def compute(name,rpn_expression)
+        @data_sources << Compute.new( name, rpn_expression )
+      end
+
       def average(options)
         @archives << Average.new( options )
+      end
+
+      def min(options)
+        @archives << Min.new( options )
+      end
+
+      def max(options)
+        @archives << Max.new( options )
+      end
+
+      def last(options)
+        @archives << Last.new( options )
       end
 
     end
