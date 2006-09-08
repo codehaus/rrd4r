@@ -396,7 +396,7 @@ module Rrd4r
       end
       def to_s
         s = "LINE#{@width}:#{@value}"
-        s += "#{@color}"    if ( @color )
+        s += "#{@color}"     if ( @color )
         s += ":'#{@legend}'" if ( @legend )
         s += ':STACK'        if ( @stack )
         s
@@ -404,9 +404,50 @@ module Rrd4r
     end
 
     class Area
+      def initialize(value,options={})
+        @value  = value
+        @color  = options[:color]
+        @legend = options[:legend]
+        @stack  = options[:stack]
+      end
+      def to_s
+        s = "AREA:#{@value}"
+        s += "#{@color}"     if ( @color )
+        s += ":'#{@legend}'" if ( @legend )
+        s += ':STACK'        if ( @stack )
+        s
+      end
     end
 
-    def self.create(options={})
+    class Builder
+      def initialize()
+        @defs = []
+        @graphs = []
+        if ( block_given? )
+          yield( self )
+        end
+      end
+      def defs
+        @defs
+      end
+      def graphs
+        @graphs
+      end
+      def def(vname, data_source, cf, options={})
+        @defs << Def.new( vname, data_source, cf, options )
+      end
+      def line(value,options={})
+        @graphs << Line.new( value, options )
+      end
+      def area(value,options={})
+        @graphs << Area.new( value, options )
+      end
+    end
+
+    def self.create(options={},&block)
+      builder = Builder.new( &block )
+      options[:defs]   = ( options[:defs] || [] ) + builder.defs
+      options[:graphs] = ( options[:graphs] || [] ) + builder.graphs
       graph = Graph.new( options )
     end
 
@@ -427,6 +468,8 @@ module Rrd4r
       outfile = options[:outfile] || '-'
       args = [ "--imgformat #{type.to_s.upcase}" ]
       args << "--title '#{@title}'" if @title
+      args << "--width #{options[:width]}"   if options[:width]
+      args << "--height #{options[:height]}" if options[:height]
       for d in @defs
         args << d.to_s
       end
