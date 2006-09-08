@@ -25,7 +25,7 @@ module Rrd4r
       def update_at(timestamp, value)
         @rrd.update_at( timestamp, value )
       end
-      def graph_def(vname, cf, options={})
+      def def(vname, cf, options={})
         Rrd4r::Graph::Def.new( vname, self, cf, options )
       end
     end
@@ -77,7 +77,6 @@ module Rrd4r
       end
     end
 
-
     class Archive
       def initialize(type,options={})
         @type  = type
@@ -114,9 +113,44 @@ module Rrd4r
       end 
     end
 
-    def self.create(rrd_path, options={})
-      data_sources = options[:data_sources]
-      archives = options[:archives]
+    class Builder
+      def initialize()
+        @data_sources = []
+        @archives = []
+        if ( block_given? )
+          yield( self )
+        end
+      end
+
+      def data_sources
+        @data_sources
+      end
+
+      def archives
+        @archives
+      end
+
+      def gauge(name,options)
+        @data_sources << Gauge.new( name, options )
+      end
+
+      def counter(name,options)
+        @data_sources << Counter.new( name, options )
+      end
+
+      def average(options)
+        @archives << Average.new( options )
+      end
+
+    end
+
+    def self.create2(rrd_path,options={},&block)
+    end
+
+    def self.create(rrd_path, options={}, &block)
+      builder = Builder.new( &block )
+      data_sources = ( options[:data_sources] || [] ) + builder.data_sources
+      archives = ( options[:archives] || [] ) + builder.archives
       args = [ rrd_path ]
       if ( options[:start] )
         args << '--start'
