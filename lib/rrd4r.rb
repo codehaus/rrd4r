@@ -387,13 +387,20 @@ module Rrd4r
       def initialize(value,options={})
         @value  = value
         @width  = options[:width] || '' 
-        @color  = options[:color]
+        if ( options[:color] )
+          case ( options[:color] )
+            when String
+              @color = options[:color]
+            when Integer
+              @color = sprintf( '%08x', options[:color] )
+          end
+        end
         @legend = options[:legend]
         @stack  = options[:stack]
       end
       def to_s
         s = "LINE#{@width}:#{@value}"
-        s += "#{@color}"     if ( @color )
+        s += "##{@color}"     if ( @color )
         s += ":'#{@legend}'" if ( @legend )
         s += ':STACK'        if ( @stack )
         s
@@ -409,7 +416,7 @@ module Rrd4r
       end
       def to_s
         s = "AREA:#{@value}"
-        s += "#{@color}"     if ( @color )
+        s += "##{@color}"     if ( @color )
         s += ":'#{@legend}'" if ( @legend )
         s += ':STACK'        if ( @stack )
         s
