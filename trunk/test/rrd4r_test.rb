@@ -20,7 +20,9 @@ class RrdToolTest < Test::Unit::TestCase
     rrd.update( :gb_used=>10 )
     puts "last: #{rrd.last}"
 
-    graph = Rrd4r::Graph.create( :defs=>[ rrd.data_source( :gb_used ).graph_def( :average ) ] )
+    graph = Rrd4r::Graph.create( :defs=>{ 
+                                   :average => rrd[ :gb_used ].graph_def( :average ) 
+                                 } )
     pp graph
   end
 
