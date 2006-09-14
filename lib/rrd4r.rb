@@ -485,7 +485,7 @@ module Rrd4r
       puts "DEBUG: Rrd4r: exec: #{command_line}" if Rrd4r::DEBUG
       image_data = nil
       open( '| ' + command_line ) do |io|
-        io.read( nil, image_data ) if ! options[:outfile]
+        image_data = io.read( ) if ! options[:outfile]
       end    
       image_data
     end
