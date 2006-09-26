@@ -23,7 +23,7 @@ module Rrd4r
         update_at( :N, value )
       end
       def update_at(timestamp, value)
-        @rrd.update_at( timestamp, value )
+        @rrd.update_at( timestamp, { @name=>value } )
       end
       def def(vname, cf, options={})
         Rrd4r::Graph::Def.new( vname, self, cf, options )
@@ -400,7 +400,7 @@ module Rrd4r
       end
       def to_s
         s = "LINE#{@width}:#{@value}"
-        s += "##{@color}"     if ( @color )
+        s += "#{@color}"     if ( @color )
         s += ":'#{@legend}'" if ( @legend )
         s += ':STACK'        if ( @stack )
         s
@@ -416,7 +416,7 @@ module Rrd4r
       end
       def to_s
         s = "AREA:#{@value}"
-        s += "##{@color}"     if ( @color )
+        s += "#{@color}"     if ( @color )
         s += ":'#{@legend}'" if ( @legend )
         s += ':STACK'        if ( @stack )
         s
@@ -474,6 +474,15 @@ module Rrd4r
       args << "--title '#{@title}'" if @title
       args << "--width #{options[:width]}"   if options[:width]
       args << "--height #{options[:height]}" if options[:height]
+      args << "--start #{options[:start]}" if options[:start]
+      args << "--end #{options[:end]}" if options[:end]
+
+      if ( options[:color] )
+        options[:color].each do |key,value|
+          args << "--color #{key.to_s.upcase}#{value}"
+        end
+      end
+
       for d in @defs
         args << d.to_s
       end
