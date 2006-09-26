@@ -395,13 +395,13 @@ module Rrd4r
               @color = sprintf( '%08x', options[:color] )
           end
         end
-        @legend = options[:legend]
+        @legend = options[:legend] || value.to_s
         @stack  = options[:stack]
       end
       def to_s
         s = "LINE#{@width}:#{@value}"
         s += "#{@color}"     if ( @color )
-        s += ":'#{@legend}'" if ( @legend )
+        s += ":'#{@legend}'"
         s += ':STACK'        if ( @stack )
         s
       end
@@ -411,13 +411,13 @@ module Rrd4r
       def initialize(value,options={})
         @value  = value
         @color  = options[:color]
-        @legend = options[:legend]
+        @legend = options[:legend] || value.to_s
         @stack  = options[:stack]
       end
       def to_s
         s = "AREA:#{@value}"
         s += "#{@color}"     if ( @color )
-        s += ":'#{@legend}'" if ( @legend )
+        s += ":'#{@legend}'"
         s += ':STACK'        if ( @stack )
         s
       end
@@ -476,6 +476,7 @@ module Rrd4r
       args << "--height #{options[:height]}" if options[:height]
       args << "--start #{options[:start]}" if options[:start]
       args << "--end #{options[:end]}" if options[:end]
+      args << "--lower-limit #{options[:lower_limit]}" if options[:lower_limit]
 
       if ( options[:color] )
         options[:color].each do |key,value|
