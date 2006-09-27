@@ -371,12 +371,18 @@ module Rrd4r
         @vname = vname
         @rpn_expression = rpn_expression
       end
+      def to_s
+        "VDEF:#{@vname}='#{@rpn_expression}'"
+      end
     end
 
     class Cdef
       def initialize(vname,rpn_expression)
         @vname = vname
         @rpn_expression = rpn_expression
+      end
+      def to_s
+        "CDEF:#{@vname}='#{@rpn_expression}'"
       end
     end
 
@@ -426,6 +432,8 @@ module Rrd4r
     class Builder
       def initialize()
         @defs = []
+        @vdefs = []
+        @cdefs = []
         @graphs = []
         if ( block_given? )
           yield( self )
@@ -434,11 +442,23 @@ module Rrd4r
       def defs
         @defs
       end
+      def vdefs
+        @vdefs
+      end
+      def cdefs
+        @cdefs
+      end
       def graphs
         @graphs
       end
       def def(vname, data_source, cf, options={})
         @defs << Def.new( vname, data_source, cf, options )
+      end
+      def vdef(vname, rpn_expr)
+        @vdefs << Vdef.new( vname, rpn_expr )
+      end
+      def cdef(vname, rpn_expr)
+        @cdefs << Cdef.new( vname, rpn_expr )
       end
       def line(value,options={})
         @graphs << Line.new( value, options )
@@ -451,6 +471,8 @@ module Rrd4r
     def self.create(options={},&block)
       builder = Builder.new( &block )
       options[:defs]   = ( options[:defs] || [] ) + builder.defs
+      options[:vdefs]  = ( options[:vdefs] || [] ) + builder.vdefs
+      options[:cdefs]  = ( options[:vdefs] || [] ) + builder.cdefs
       options[:graphs] = ( options[:graphs] || [] ) + builder.graphs
       graph = Graph.new( options )
     end
@@ -459,8 +481,8 @@ module Rrd4r
       @title          = options[:title]
       @vertical_label = options[:vertical_label]
       @defs   = options[:defs] 
-      @vdefs  = options[:vdefs] 
-      @cdefs  = options[:cdefs] 
+      @vdefs  = options[:vdefs] || []
+      @cdefs  = options[:cdefs] || []
       @graphs = options[:graphs]
     end
 
@@ -486,6 +508,12 @@ module Rrd4r
 
       for d in @defs
         args << d.to_s
+      end
+      for c in @cdefs
+        args << c.to_s
+      end
+      for v in @vdefs
+        args << v.to_s
       end
       for g in @graphs
         args << g.to_s
