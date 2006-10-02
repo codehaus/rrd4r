@@ -1,4 +1,6 @@
 
+require 'stringio/stringio'
+
 module Rrd4r
 
   DEBUG = true
