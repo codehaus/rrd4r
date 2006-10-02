@@ -1,5 +1,5 @@
 
-require 'stringio/stringio'
+require 'stringio'
 
 module Rrd4r
 
