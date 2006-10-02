@@ -474,7 +474,7 @@ module Rrd4r
       builder = Builder.new( &block )
       options[:defs]   = ( options[:defs] || [] ) + builder.defs
       options[:vdefs]  = ( options[:vdefs] || [] ) + builder.vdefs
-      options[:cdefs]  = ( options[:vdefs] || [] ) + builder.cdefs
+      options[:cdefs]  = ( options[:cdefs] || [] ) + builder.cdefs
       options[:graphs] = ( options[:graphs] || [] ) + builder.graphs
       graph = Graph.new( options )
     end
