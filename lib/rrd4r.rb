@@ -3,7 +3,7 @@ require 'stringio'
 
 module Rrd4r
 
-  DEBUG = true
+  DEBUG = false
   RRDTOOL_BIN = `which rrdtool`.chomp
 
   class Rrd
@@ -431,6 +431,20 @@ module Rrd4r
       end
     end
 
+    class HRule
+      def initialize(value,options={})
+        @value  = value
+        @color  = options[:color]
+        @legend = options[:legend] || value.to_s
+      end
+      def to_s
+        s = "HRULE:#{@value}"
+        s += "#{@color}"     if ( @color )
+        s += ":'#{@legend}'"
+        s
+      end
+    end
+
     class Builder
       def initialize()
         @defs = []
@@ -467,6 +481,9 @@ module Rrd4r
       end
       def area(value,options={})
         @graphs << Area.new( value, options )
+      end
+      def hrule(value,options={})
+        @graphs << HRule.new( value, options )
       end
     end
 
