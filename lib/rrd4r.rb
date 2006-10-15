@@ -214,7 +214,10 @@ module Rrd4r
     end
 
     def close()
-      @rrd.close and @rrd = nil if @rrd
+      if @rrd
+        @rrd.close 
+        @rrd = nil 
+      end
     end
 
     def [](name)
